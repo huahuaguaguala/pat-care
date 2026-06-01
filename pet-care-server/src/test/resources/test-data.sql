@@ -10,6 +10,7 @@ TRUNCATE TABLE `medical_record`;
 TRUNCATE TABLE `pet_photo`;
 TRUNCATE TABLE `pet`;
 TRUNCATE TABLE `user`;
+TRUNCATE TABLE `audit_log`;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Reset service items to known state
