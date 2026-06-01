@@ -42,7 +42,8 @@ public class AuditInterceptor implements HandlerInterceptor {
             log.setTarget(extractTarget(request.getRequestURI()));
             log.setTargetId(extractTargetId(request.getRequestURI()));
             log.setDetail(request.getMethod() + " " + request.getRequestURI());
-            try { auditLogMapper.insert(log); } catch (Exception e) {}
+            try { auditLogMapper.insert(log); } catch (Exception e) { 
+                org.slf4j.LoggerFactory.getLogger("AUDIT").warn("Audit insert failed: {}", e.getMessage()); }
         }
         currentLog.remove();
     }

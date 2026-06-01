@@ -15,20 +15,22 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 1. JWT: parse token, set userId+role on request attributes
-        registry.addInterceptor(jwtInterceptor).addPathPatterns("/api/**")
+        // 1. JWT: parse token -> set userId/role on request attributes
+        registry.addInterceptor(jwtInterceptor)
+                .addPathPatterns("/api/**")
                 .excludePathPatterns(
                     "/api/auth/login", "/api/auth/wechat-login", "/api/auth/register",
                     "/api/service/category", "/api/service/item", "/api/service/item/*",
                     "/api/rank/pet/weekly", "/api/rank/service/hot",
-                    "/api/breed", "/api/package", "/api/package/*",
-                    "/api/health/pet/*/timeline", "/api/weight/pet/*",
-                    "/api/payment/qrcode/*", "/api/payment/scan/*",
-                    "/api/vaccine/pet/*", "/api/boarding/pet/*"
+                    "/api/breed", "/api/package", "/api/package/*"
                 );
-        // 2. Role: check @RequireRole (depends on JWT setting role attribute)
-        registry.addInterceptor(roleInterceptor).addPathPatterns("/api/**");
-        // 3. Audit: log all successful API calls
-        registry.addInterceptor(auditInterceptor).addPathPatterns("/api/**");
+
+        // 2. Role: check @RequireRole annotation (depends on JWT above)
+        registry.addInterceptor(roleInterceptor)
+                .addPathPatterns("/api/**");
+
+        // 3. Audit: log all API calls
+        registry.addInterceptor(auditInterceptor)
+                .addPathPatterns("/api/**");
     }
 }

@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface OrderService {
     Result<?> createOrder(OrderDTO dto, Long userId);
     Result<?> getMyOrders(Long userId);
-    Result<?> getPendingOrders(Integer role);
+    Result<?> getPendingOrders();
     Result<?> pay(Long orderId, Long userId);
     Result<?> accept(Long orderId, Long staffId);
     Result<?> complete(Long orderId, Long staffId);

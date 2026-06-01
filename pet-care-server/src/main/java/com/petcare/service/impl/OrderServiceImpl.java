@@ -100,8 +100,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Result<?> getPendingOrders(Integer role) {
-        // Role check handled by @RequireRole(1) on controller
+    public Result<?> getPendingOrders() {
         return Result.success(orderMapper.selectList(new LambdaQueryWrapper<Order>()
                 .eq(Order::getStatus, 1).orderByAsc(Order::getCreateTime)));
     }

@@ -28,7 +28,7 @@ public class OrderController {
     @GetMapping("/pending")
     @RequireRole(1)
     public Result<?> pendingOrders() {
-        return orderService.getPendingOrders(null);
+        return orderService.getPendingOrders();
     }
 
     @PutMapping("/{id}/pay")
