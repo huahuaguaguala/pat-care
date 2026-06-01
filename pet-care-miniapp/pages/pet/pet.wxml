@@ -1,0 +1,42 @@
+
+<view class="container">
+  <view class="card">
+    <view class="card-title">My Pets <text class="btn btn-primary btn-sm" bindtap="showAdd">+ Add</text></view>
+    <view wx:for="{{pets}}" wx:key="id" class="card" style="margin-bottom:8px;">
+      <view style="font-weight:600;">{{item.name}} <text class="text-muted">#{{item.storeNo}}</text></view>
+      <view style="font-size:12px;color:#666;">{{item.breedName}} | {{item.gender===0?'M':'F'}} | {{item.weight}}kg</view>
+      <view wx:if="{{item.personality}}" style="font-size:12px;color:#999;">{{item.personality}}</view>
+      <view style="margin-top:8px;">
+        <text class="btn btn-sm" style="background:#E3F2FD;color:#1565C0;" data-id="{{item.id}}" bindtap="editPet">Edit</text>
+        <text class="btn btn-sm btn-danger" style="margin-left:8px;" data-id="{{item.id}}" bindtap="deletePet">Delete</text>
+      </view>
+    </view>
+    <view wx:if="{{pets.length === 0}}" class="empty">No pets yet</view>
+  </view>
+
+  <view wx:if="{{showForm}}" class="card" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:100;overflow:scroll;">
+    <view class="card-title">{{editPet ? 'Edit Pet' : 'Add Pet'}} <text class="btn btn-sm" bindtap="hideForm" style="color:#999;">Close</text></view>
+    <form bindsubmit="savePet">
+      <view style="margin-bottom:10px;"><text>Name *</text><input name="name" value="{{editPet.name}}" style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;" /></view>
+      <view style="margin-bottom:10px;"><text>Breed</text>
+        <picker name="breedId" mode="selector" range="{{breedOptions}}" range-key="name" value="{{editPet.breedId}}">
+          <view style="border:1px solid #ddd;border-radius:8px;padding:8px;margin-top:4px;">{{editPet.breedName || 'Select breed'}}</view>
+        </picker>
+      </view>
+      <input name="breedName" placeholder="Or type breed name" style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-bottom:10px;" />
+      <view style="display:flex;gap:8px;margin-bottom:10px;">
+        <view style="flex:1;"><text>Birthday</text><input name="birthday" type="date" value="{{editPet.birthday}}" style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;" /></view>
+        <view style="flex:1;"><text>Gender</text>
+          <radio-group name="gender" style="display:flex;margin-top:8px;">
+            <label><radio value="0" checked="{{editPet.gender===0}}" />Male</label>
+            <label style="margin-left:12px;"><radio value="1" checked="{{editPet.gender===1}}" />Female</label>
+          </radio-group>
+        </view>
+      </view>
+      <view style="margin-bottom:10px;"><text>Weight (kg)</text><input name="weight" type="digit" value="{{editPet.weight}}" style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;" /></view>
+      <view style="margin-bottom:10px;"><text>Personality</text><input name="personality" value="{{editPet.personality}}" placeholder="e.g. Friendly, shy..." style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;" /></view>
+      <view style="margin-bottom:10px;"><text>Notes</text><textarea name="notes" value="{{editPet.notes}}" placeholder="Allergies, special needs..." style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;height:60px;" /></view>
+      <button form-type="submit" class="btn btn-primary" style="width:100%;">Save</button>
+    </form>
+  </view>
+</view>

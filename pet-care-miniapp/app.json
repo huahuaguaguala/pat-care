@@ -1,0 +1,27 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/service/service",
+    "pages/order/order",
+    "pages/pet/pet",
+    "pages/sign/sign",
+    "pages/mine/mine"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTitleText": "ZippyCare",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f5f5f5"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#fff",
+    "list": [
+      {"pagePath": "pages/index/index", "text": "Home", "iconPath": "images/home.png", "selectedIconPath": "images/home-active.png"},
+      {"pagePath": "pages/service/service", "text": "Service", "iconPath": "images/service.png", "selectedIconPath": "images/service-active.png"},
+      {"pagePath": "pages/order/order", "text": "Order", "iconPath": "images/order.png", "selectedIconPath": "images/order-active.png"},
+      {"pagePath": "pages/mine/mine", "text": "Mine", "iconPath": "images/mine.png", "selectedIconPath": "images/mine-active.png"}
+    ]
+  }
+}

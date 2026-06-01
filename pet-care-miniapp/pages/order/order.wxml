@@ -1,0 +1,26 @@
+
+<view class="container">
+  <view class="card" style="display:flex;gap:8px;flex-wrap:wrap;">
+    <text class="tag {{filterStatus === null ? 'tag-green' : 'tag-blue'}}" bindtap="{{() => {filterStatus=null;loadOrders()}}}">All</text>
+    <text wx:for="{{statusMap}}" wx:key="*this" class="tag {{filterStatus === index ? 'tag-green' : 'tag-blue'}}"
+      bindtap="{{() => {filterStatus=index;loadOrders()}}}">{{item}}</text>
+  </view>
+
+  <view wx:for="{{orders}}" wx:key="id" wx:if="{{!filterStatus || item.order.status === filterStatus}}" class="card">
+    <view style="display:flex;justify-content:space-between;">
+      <text style="font-size:12px;color:#999;">#{{item.order.orderNo}}</text>
+      <text class="status-badge status-{{item.order.status}}">{{statusMap[item.order.status]}}</text>
+    </view>
+    <view wx:for="{{item.details}}" wx:key="id" style="padding:4px 0;font-size:13px;">{{it.serviceName}} x{{it.quantity}} - ${{it.subtotal}}</view>
+    <view style="text-align:right;font-weight:600;margin-top:8px;">Total: <text class="price">${{item.order.totalAmount}}</text></view>
+    <view wx:if="{{item.order.remark}}" class="text-muted">Note: {{item.order.remark}}</view>
+
+    <view style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+      <text wx:if="{{item.order.status === 0}}" class="btn btn-sm btn-primary" data-id="{{item.order.id}}" bindtap="payOrder">Pay</text>
+      <text wx:if="{{item.order.status === 0 || item.order.status === 1}}" class="btn btn-sm btn-danger" data-id="{{item.order.id}}" bindtap="cancelOrder">Cancel</text>
+      <text wx:if="{{item.order.status === 3 && !item.order.rating}}" class="btn btn-sm" style="background:#FFF3E0;color:#E65100;" data-id="{{item.order.id}}" bindtap="reviewOrder">Rate</text>
+      <text wx:if="{{item.order.status === 4 && item.order.cancelReason}}" class="text-muted">Cancel: {{item.order.cancelReason}}</text>
+    </view>
+  </view>
+  <view wx:if="{{orders.length === 0}}" class="empty">No orders yet</view>
+</view>
