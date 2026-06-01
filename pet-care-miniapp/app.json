@@ -1,0 +1,29 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/service/service",
+    "pages/order/order",
+    "pages/pet/pet",
+    "pages/queue/queue",
+    "pages/sign/sign",
+    "pages/mine/mine"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#4CAF50",
+    "navigationBarTitleText": "爪爪护理",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#4CAF50",
+    "list": [
+      {"pagePath": "pages/index/index", "text": "首页", "iconPath": "images/home.png", "selectedIconPath": "images/home-active.png"},
+      {"pagePath": "pages/service/service", "text": "服务", "iconPath": "images/service.png", "selectedIconPath": "images/service-active.png"},
+      {"pagePath": "pages/order/order", "text": "订单", "iconPath": "images/order.png", "selectedIconPath": "images/order-active.png"},
+      {"pagePath": "pages/mine/mine", "text": "我的", "iconPath": "images/mine.png", "selectedIconPath": "images/mine-active.png"}
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {"desc": "用于查找附近宠友"}
+  }
+}

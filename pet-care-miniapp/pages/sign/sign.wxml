@@ -1,0 +1,8 @@
+<view class="container">
+  <view class="card" style="text-align:center;">
+    <text style="font-size:48px;display:block;margin:20px 0;">{{today}}</text>
+    <text>本月签到 {{signCount}} 天 | 连续 {{consecutiveDays}} 天</text>
+    <view wx:if="{{!todaySigned}}" class="btn-primary" bindtap="doSign" style="margin-top:16px;">签到</view>
+    <view wx:else style="margin-top:16px;color:#4CAF50;">今日已签到 ✓</view>
+  </view>
+</view>

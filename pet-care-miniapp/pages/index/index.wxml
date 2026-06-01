@@ -1,0 +1,15 @@
+<view class="container">
+  <view class="card">
+    <text style="font-size:18px;font-weight:bold;">本周宠物明星</text>
+    <view wx:for="{{weeklyRank}}" wx:key="petId" style="padding:8px 0;border-bottom:1px solid #eee;">
+      <text>#{{index + 1}} 宠物ID: {{item.petId}}  人气: {{item.score}}</text>
+    </view>
+    <view wx:if="{{weeklyRank.length === 0}}" class="text-muted" style="padding:16px;text-align:center;">暂无数据</view>
+  </view>
+  <view class="card">
+    <text style="font-size:18px;font-weight:bold;">热门服务</text>
+    <view wx:for="{{services}}" wx:key="id" style="padding:8px 0;border-bottom:1px solid #eee;">
+      <text>{{item.name}}  ¥{{item.price}}</text>
+    </view>
+  </view>
+</view>
