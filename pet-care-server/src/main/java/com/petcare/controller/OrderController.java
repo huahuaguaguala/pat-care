@@ -23,7 +23,7 @@ public class OrderController {
     @Autowired private OrderMapper orderMapper;
     @Autowired private ServiceItemMapper itemMapper;
     @Autowired private PetMapper petMapper;
-    @Autowired private RedisTemplate<String, Object> redisTemplate;
+    @Autowired(required = false) private RedisTemplate<String, Object> redisTemplate;
     @Autowired private OrderWebSocketHandler wsHandler;
 
     private final Snowflake snowflake = IdUtil.getSnowflake(1, 1);
@@ -96,7 +96,7 @@ public class OrderController {
                 "{\"type\":\"new_order\",\"orderId\":" + id + ",\"msg\":\"有新订单待接单\"}");
 
         // 更新 Redis 热门服务计数
-        redisTemplate.opsForZSet().incrementScore("service:hot:daily:" +
+        if (redisTemplate != null) redisTemplate.opsForZSet().incrementScore("service:hot:daily:" +
                 java.time.LocalDate.now(), order.getServiceId().toString(), 1);
 
         return Result.success(order);
@@ -137,11 +137,11 @@ public class OrderController {
         orderMapper.updateById(order);
 
         // 更新宠物人气值（Redis）
-        redisTemplate.opsForZSet().incrementScore("rank:pet:popularity:weekly",
+        if (redisTemplate != null) redisTemplate.opsForZSet().incrementScore("rank:pet:popularity:weekly",
                 order.getPetId().toString(), 3);
 
         // 更新每日营收
-        redisTemplate.opsForValue().increment("store:revenue:daily:" +
+        if (redisTemplate != null) redisTemplate.opsForValue().increment("store:revenue:daily:" +
                 java.time.LocalDate.now(), order.getAmount().multiply(new BigDecimal(100)).longValue());
 
         // 通知宠物主
@@ -182,7 +182,7 @@ public class OrderController {
 
         // 好评加人气
         if (rating >= 4) {
-            redisTemplate.opsForZSet().incrementScore("rank:pet:popularity:weekly",
+            if (redisTemplate != null) redisTemplate.opsForZSet().incrementScore("rank:pet:popularity:weekly",
                     order.getPetId().toString(), rating);
         }
         return Result.success(order);

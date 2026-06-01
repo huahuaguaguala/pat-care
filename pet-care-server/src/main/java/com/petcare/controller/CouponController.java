@@ -13,7 +13,7 @@ import java.util.Arrays;
 @RestController
 @RequestMapping("/api/coupon")
 public class CouponController {
-    @Autowired private RedisTemplate<String, Object> redisTemplate;
+    @Autowired(required = false) private RedisTemplate<String, Object> redisTemplate;
     @Autowired private CouponMapper couponMapper;
 
     private final DefaultRedisScript<Long> seckillScript;
@@ -27,6 +27,7 @@ public class CouponController {
     /** 秒杀优惠券 */
     @PostMapping("/seckill/{couponId}")
     public Result<?> seckill(@PathVariable Long couponId, HttpServletRequest req) {
+        if (redisTemplate == null) return Result.fail("请先启动Redis");
         Long userId = (Long) req.getAttribute("userId");
 
         // 校验优惠券是否存在且有效
@@ -41,7 +42,7 @@ public class CouponController {
         // 初始化 Redis 库存（首次）
         Boolean hasKey = redisTemplate.hasKey(stockKey);
         if (hasKey == null || !hasKey) {
-            redisTemplate.opsForValue().set(stockKey, coupon.getRemainStock());
+            if (redisTemplate != null) redisTemplate.opsForValue().set(stockKey, coupon.getRemainStock());
         }
 
         // KEYS[1]=stockKey, KEYS[2]=claimedKey, ARGV[1]=userId

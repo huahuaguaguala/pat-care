@@ -9,11 +9,12 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/rank")
 public class RankController {
-    @Autowired private RedisTemplate<String, Object> redisTemplate;
+    @Autowired(required = false) private RedisTemplate<String, Object> redisTemplate;
 
     /** 本周宠物人气榜 Top10 */
     @GetMapping("/pet/weekly")
     public Result<?> weeklyPetRank() {
+        if (redisTemplate == null) return Result.fail("请先启动Redis");
         String key = "rank:pet:popularity:weekly";
         Set<ZSetOperations.TypedTuple<Object>> top10 = redisTemplate.opsForZSet()
                 .reverseRangeWithScores(key, 0, 9);
@@ -32,6 +33,7 @@ public class RankController {
     /** 热门服务排行 */
     @GetMapping("/service/hot")
     public Result<?> hotService() {
+        if (redisTemplate == null) return Result.fail("请先启动Redis");
         String key = "service:hot:daily:" + java.time.LocalDate.now();
         Set<ZSetOperations.TypedTuple<Object>> top = redisTemplate.opsForZSet()
                 .reverseRangeWithScores(key, 0, 4);

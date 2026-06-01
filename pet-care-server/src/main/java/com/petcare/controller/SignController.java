@@ -11,11 +11,12 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/sign")
 public class SignController {
-    @Autowired private RedisTemplate<String, Object> redisTemplate;
+    @Autowired(required = false) private RedisTemplate<String, Object> redisTemplate;
 
     /** 查询当月签到状态 */
     @GetMapping("/status")
     public Result<?> signStatus(HttpServletRequest req) {
+        if (redisTemplate == null) return Result.fail("请先启动Redis");
         Long userId = (Long) req.getAttribute("userId");
         LocalDate now = LocalDate.now();
         String key = "sign:user:" + userId + ":" + now.getYear() + String.format("%02d", now.getMonthValue());
@@ -56,6 +57,7 @@ public class SignController {
     /** 执行签到 */
     @PostMapping("/do")
     public Result<?> doSign(HttpServletRequest req) {
+        if (redisTemplate == null) return Result.fail("请先启动Redis");
         Long userId = (Long) req.getAttribute("userId");
         LocalDate now = LocalDate.now();
         String key = "sign:user:" + userId + ":" + now.getYear() + String.format("%02d", now.getMonthValue());
@@ -66,7 +68,7 @@ public class SignController {
             return Result.fail("今日已签到");
         }
 
-        redisTemplate.opsForValue().setBit(key, offset, true);
+        if (redisTemplate != null) redisTemplate.opsForValue().setBit(key, offset, true);
 
         // 统计连续签到天数
         List<Long> bits = redisTemplate.opsForValue()
