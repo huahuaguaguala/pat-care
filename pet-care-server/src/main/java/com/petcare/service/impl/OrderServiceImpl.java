@@ -13,11 +13,13 @@ import com.petcare.websocket.OrderWebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
     @Autowired private OrderMapper orderMapper;
@@ -99,7 +101,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Result<?> getPendingOrders(Integer role) {
-        if (role != 1) return Result.fail(403, "Staff only");
+        // Role check handled by @RequireRole(1) on controller
         return Result.success(orderMapper.selectList(new LambdaQueryWrapper<Order>()
                 .eq(Order::getStatus, 1).orderByAsc(Order::getCreateTime)));
     }

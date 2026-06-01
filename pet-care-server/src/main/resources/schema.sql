@@ -504,3 +504,22 @@ CREATE TABLE `notification` (
 ALTER TABLE `order` ADD COLUMN `refund_time` DATETIME AFTER `complete_time`;
 ALTER TABLE `order` ADD COLUMN `refund_reason` VARCHAR(255) AFTER `rejection_reason`;
 ALTER TABLE `order` ADD COLUMN `refund_amount` DECIMAL(10,2) AFTER `total_amount`;
+
+-- ============================================================
+-- 19. Operation audit log (NEW - v3.4)
+-- ============================================================
+DROP TABLE IF EXISTS `audit_log`;
+CREATE TABLE `audit_log` (
+  `id` BIGINT PRIMARY KEY AUTO_INCREMENT,
+  `user_id` BIGINT COMMENT 'Operator user.id',
+  `username` VARCHAR(32) COMMENT 'Operator name snapshot',
+  `action` VARCHAR(32) NOT NULL COMMENT 'CREATE / UPDATE / DELETE / LOGIN',
+  `target` VARCHAR(64) COMMENT 'Target entity, e.g. Order, Pet, ServiceItem',
+  `target_id` BIGINT COMMENT 'Target record id',
+  `detail` VARCHAR(512) COMMENT 'Brief description of what changed',
+  `ip` VARCHAR(45) COMMENT 'Request IP',
+  `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX `idx_user` (`user_id`),
+  INDEX `idx_action` (`action`),
+  INDEX `idx_create_time` (`create_time`)
+) ENGINE=InnoDB COMMENT='Operation audit log - who did what and when';

@@ -1,5 +1,6 @@
 package com.petcare.controller;
 
+import com.petcare.common.RequireRole;
 import com.petcare.common.Result;
 import com.petcare.dto.OrderDTO;
 import com.petcare.service.OrderService;
@@ -25,8 +26,9 @@ public class OrderController {
     }
 
     @GetMapping("/pending")
-    public Result<?> pendingOrders(HttpServletRequest req) {
-        return orderService.getPendingOrders((Integer) req.getAttribute("role"));
+    @RequireRole(1)
+    public Result<?> pendingOrders() {
+        return orderService.getPendingOrders(null);
     }
 
     @PutMapping("/{id}/pay")
@@ -35,28 +37,26 @@ public class OrderController {
     }
 
     @PutMapping("/{id}/accept")
+    @RequireRole(1)
     public Result<?> accept(@PathVariable Long id, HttpServletRequest req) {
-        Integer role = (Integer) req.getAttribute("role");
-        if (role != 1) return Result.fail(403, "Staff only");
         return orderService.accept(id, (Long) req.getAttribute("userId"));
     }
 
     @PutMapping("/{id}/complete")
+    @RequireRole(1)
     public Result<?> complete(@PathVariable Long id, HttpServletRequest req) {
-        Integer role = (Integer) req.getAttribute("role");
-        if (role != 1) return Result.fail(403, "Staff only");
         return orderService.complete(id, (Long) req.getAttribute("userId"));
     }
 
     @PutMapping("/{id}/reject")
+    @RequireRole(1)
     public Result<?> reject(@PathVariable Long id, @RequestParam(required = false) String reason,
                             HttpServletRequest req) {
-        Integer role = (Integer) req.getAttribute("role");
-        if (role != 1) return Result.fail(403, "Staff only");
         return orderService.reject(id, reason, (Long) req.getAttribute("userId"));
     }
 
     @PutMapping("/{id}/refund")
+    @RequireRole({1, 2})
     public Result<?> refund(@PathVariable Long id, @RequestParam(required = false) String reason,
                             HttpServletRequest req) {
         return orderService.refund(id, reason, (Long) req.getAttribute("userId"));
