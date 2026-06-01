@@ -8,7 +8,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/coupon")
@@ -44,20 +44,17 @@ public class CouponController {
             redisTemplate.opsForValue().set(stockKey, coupon.getRemainStock());
         }
 
+        // KEYS[1]=stockKey, KEYS[2]=claimedKey, ARGV[1]=userId
         Long result = redisTemplate.execute(
                 seckillScript,
-                Collections.singletonList(stockKey),
-                stockKey, claimedKey, userId.toString());
+                Arrays.asList(stockKey, claimedKey),
+                userId.toString());
 
+        if (result == null) return Result.fail("秒杀系统繁忙");
         if (result == -1) return Result.fail("您已领取过该优惠券");
         if (result == 0) return Result.fail("优惠券已被抢光");
 
         // 同步更新 MySQL 库存（异步更好，MVP阶段同步处理）
         Coupon update = new Coupon();
         update.setId(couponId);
-        update.setRemainStock(coupon.getRemainStock() - 1);
-        couponMapper.updateById(update);
-
-        return Result.success("抢券成功！");
-    }
-}
+        update.setRemainStock(coupon.getRemainStock()

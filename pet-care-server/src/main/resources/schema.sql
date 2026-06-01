@@ -27,8 +27,8 @@ CREATE TABLE `user` (
 -- 插入测试数据
 INSERT INTO `user` VALUES
 (1, 'mock_openid_001', NULL, NULL, '宠物主小王', '13800000001', NULL, 0, 1, 1, NOW()),
-(2, NULL, 'staff01', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5Eh', '店员小李', '13800000002', NULL, 1, 1, 1, NOW()),
-(3, NULL, 'admin01', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5Eh', '店长老张', '13800000003', NULL, 2, 1, 1, NOW());
+(2, NULL, 'staff01', '$2b$12$.759cLykI8RxY0NDjUygX.OBiCutwLIe3LSww00NvDa8tF/LkZmYS', '店员小李', '13800000002', NULL, 1, 1, 1, NOW()),
+(3, NULL, 'admin01', '$2b$12$.759cLykI8RxY0NDjUygX.OBiCutwLIe3LSww00NvDa8tF/LkZmYS', '店长老张', '13800000003', NULL, 2, 1, 1, NOW());
 
 -- 宠物档案表
 DROP TABLE IF EXISTS `pet`;
