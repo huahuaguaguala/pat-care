@@ -1,14 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Dashboard from '../views/dashboard/Dashboard.vue';
-import Staff from '../views/staff/Staff.vue';
-import Service from '../views/service/Service.vue';
-import Order from '../views/order/Order.vue';
-
 const routes = [
   { path: '/', redirect: '/dashboard' },
-  { path: '/dashboard', component: Dashboard },
-  { path: '/staff', component: Staff },
-  { path: '/service', component: Service },
-  { path: '/order', component: Order }
+  { path: '/dashboard', component: () => import('../views/dashboard/Dashboard.vue') },
+  { path: '/staff', component: () => import('../views/staff/Staff.vue') },
+  { path: '/service', component: () => import('../views/service/Service.vue') },
+  { path: '/order', component: () => import('../views/order/Order.vue') }
 ];
 export default createRouter({ history: createWebHistory(), routes });

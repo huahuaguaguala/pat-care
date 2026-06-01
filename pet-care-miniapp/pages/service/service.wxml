@@ -1,1 +1,35 @@
-<view class="container"><text>{{page}} 页面</text></view>
+
+<view class="container">
+  <scroll-view scroll-x class="card" style="white-space:nowrap;padding:12px;">
+    <text wx:for="{{categories}}" wx:key="id" class="tag {{selectedCategory === item.id ? 'tag-green' : 'tag-blue'}}"
+      bindtap="loadItems" data-id="{{item.id}}" style="margin-right:8px;padding:6px 12px;display:inline-block;">{{item.name}}</text>
+  </scroll-view>
+
+  <view wx:for="{{items}}" wx:key="id" class="card">
+    <view style="display:flex;justify-content:space-between;align-items:center;">
+      <view style="flex:1;">
+        <text style="font-weight:600;">{{item.name}}</text>
+        <view class="text-muted">{{item.description}}</view>
+        <view style="margin-top:4px;"><text class="text-muted">{{item.duration}}min</text> | <text class="price">${{item.price}}</text></view>
+      </view>
+      <view class="btn btn-sm" style="{{selectedItems.indexOf(item.id) > -1 ? 'background:#4CAF50;color:#fff;' : 'background:#eee;color:#333;'}}"
+        bindtap="toggleItem" data-id="{{item.id}}">{{selectedItems.indexOf(item.id) > -1 ? 'Selected' : 'Select'}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{selectedItems.length > 0}}" class="btn btn-primary" bindtap="book" style="width:100%;margin-top:12px;">Book {{selectedItems.length}} service(s)</view>
+
+  <view wx:if="{{showBooking}}" class="card" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:100;overflow:scroll;">
+    <view class="card-title">Confirm Booking <text class="btn btn-sm" bindtap="{{() => {showBooking=false}}}" style="color:#999;">Close</text></view>
+    <form bindsubmit="submitOrder">
+      <view style="margin-bottom:10px;"><text>Pet</text>
+        <picker name="petId" mode="selector" range="{{myPets}}" range-key="name">
+          <view style="border:1px solid #ddd;border-radius:8px;padding:8px;margin-top:4px;">Select pet</view>
+        </picker>
+      </view>
+      <view style="margin-bottom:10px;"><text>Appointment Time</text><input name="appointmentTime" type="datetime-local" style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;" /></view>
+      <view style="margin-bottom:10px;"><text>Remark</text><textarea name="remark" placeholder="Any special requests..." style="border:1px solid #ddd;border-radius:8px;padding:8px;width:100%;margin-top:4px;height:60px;" /></view>
+      <button form-type="submit" class="btn btn-primary" style="width:100%;">Submit Order</button>
+    </form>
+  </view>
+</view>

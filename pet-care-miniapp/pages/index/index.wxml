@@ -1,15 +1,37 @@
 <view class="container">
-  <view class="card">
-    <text style="font-size:18px;font-weight:bold;">本周宠物明星</text>
-    <view wx:for="{{weeklyRank}}" wx:key="petId" style="padding:8px 0;border-bottom:1px solid #eee;">
-      <text>#{{index + 1}} 宠物ID: {{item.petId}}  人气: {{item.score}}</text>
-    </view>
-    <view wx:if="{{weeklyRank.length === 0}}" class="text-muted" style="padding:16px;text-align:center;">暂无数据</view>
+  <view class="card" style="background: linear-gradient(135deg, #4CAF50, #81C784); color: #fff;">
+    <view style="font-size:24px;font-weight:700;">ZippyCare</view>
+    <view style="opacity:0.8;margin-top:4px;">Pet Care, Made Easy</view>
+    <view wx:if="{{loading}}" style="margin-top:12px;">Loading...</view>
+    <view wx:if="{{!userInfo}}" class="btn btn-primary" bindtap="goLogin" style="margin-top:12px;background:#fff;color:#4CAF50;">Login</view>
+    <view wx:else style="margin-top:8px;">Hello, {{userInfo.nickname}}</view>
   </view>
+
   <view class="card">
-    <text style="font-size:18px;font-weight:bold;">热门服务</text>
-    <view wx:for="{{services}}" wx:key="id" style="padding:8px 0;border-bottom:1px solid #eee;">
-      <text>{{item.name}}  ¥{{item.price}}</text>
+    <view class="card-title">Weekly Stars</view>
+    <view wx:for="{{weeklyRank}}" wx:key="petId" style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0;">
+      <text style="font-size:18px;font-weight:700;width:30px;color:{{index < 3 ? '#FF9800' : '#999'}};">#{{index+1}}</text>
+      <text>Pet #{{item.petId}}</text>
+      <text style="margin-left:auto;color:#f44336;">{{item.score}} pts</text>
+    </view>
+    <view wx:if="{{weeklyRank.length === 0}}" class="empty">No data yet</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">Hot Services</view>
+    <view wx:for="{{hotServices}}" wx:key="serviceId" style="padding:8px 0;border-bottom:1px solid #f0f0f0;">
+      <text>Service #{{item.serviceId}}</text>
+      <text style="float:right;color:#999;">{{item.score}} orders</text>
+    </view>
+    <view wx:if="{{hotServices.length === 0}}" class="empty">No data yet</view>
+  </view>
+
+  <view class="card">
+    <view class="card-title">Breeds</view>
+    <view style="display:flex;flex-wrap:wrap;gap:8px;">
+      <view wx:for="{{breeds}}" wx:key="id" class="tag tag-blue">{{item.name}}</view>
     </view>
   </view>
+
+  <view class="btn btn-primary" bindtap="goService" style="width:100%;">Book Service</view>
 </view>

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZippyCare Test Console</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; }
+.header { background: #4CAF50; color: #fff; padding: 12px 20px; display: flex; align-items: center; gap: 16px; }
+.header h1 { font-size: 18px; }
+.header input { flex: 1; padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; }
+.header .token-status { font-size: 11px; padding: 4px 8px; border-radius: 4px; }
+.token-ok { background: #2E7D32; }
+.token-none { background: #c62828; }
+.layout { display: flex; height: calc(100vh - 48px); }
+.sidebar { width: 240px; background: #fff; border-right: 1px solid #e0e0e0; overflow-y: auto; padding: 8px 0; }
+.sidebar .group { font-size: 11px; color: #999; padding: 8px 16px 4px; text-transform: uppercase; letter-spacing: 1px; }
+.sidebar .item { padding: 8px 16px; cursor: pointer; font-size: 13px; border-left: 3px solid transparent; }
+.sidebar .item:hover { background: #f5f5f5; }
+.sidebar .item.active { background: #E8F5E9; border-left-color: #4CAF50; font-weight: 600; }
+.main { flex: 1; overflow-y: auto; padding: 16px; }
+.card { background: #fff; border-radius: 8px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+.card h3 { font-size: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.method { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; color: #fff; }
+.method-get { background: #4CAF50; }
+.method-post { background: #2196F3; }
+.method-put { background: #FF9800; }
+.method-del { background: #f44336; }
+.form-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+.form-row label { font-size: 12px; color: #666; min-width: 80px; padding-top: 6px; text-align: right; }
+.form-row input, .form-row textarea, .form-row select { flex: 1; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px; font-family: monospace; }
+.form-row textarea { min-height: 60px; resize: vertical; }
+.btn { padding: 6px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; }
+.btn-primary { background: #4CAF50; color: #fff; }
+.btn-primary:hover { background: #43A047; }
+.result { background: #263238; color: #aed581; padding: 12px; border-radius: 8px; font-family: 'Fira Code', monospace; font-size: 12px; max-height: 400px; overflow: auto; white-space: pre-wrap; word-break: break-all; margin-top: 8px; }
+.result.error { color: #ef5350; }
+.status-line { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.status-line .info { font-size: 12px; color: #666; }
+.quick-tokens { display: flex; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+.quick-tokens button { padding: 4px 12px; border: 1px solid #ddd; border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; }
+.quick-tokens button:hover { background: #E8F5E9; border-color: #4CAF50; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>ZippyCare Test</h1>
+  <input id="baseUrl" value="http://localhost:8080" placeholder="Base URL" style="max-width:200px;">
+  <span id="tokenBadge" class="token-status token-none">No Token</span>
+  <button class="btn btn-primary" onclick="clearToken()" style="font-size:11px;padding:4px 8px;">Logout</button>
+</div>
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main" id="main"></div>
+</div>
+
+<script>
+const BASE = () => document.getElementById('baseUrl').value;
+let token = null;
+
+async function request(method, path, body) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = 'Bearer ' + token;
+  const opts = { method, headers };
+  if (body && method !== 'GET') opts.body = JSON.stringify(body);
+  const start = Date.now();
+  const res = await fetch(BASE() + path, opts);
+  const elapsed = Date.now() - start;
+  let data;
+  try { data = await res.json(); } catch { data = await res.text(); }
+  return { status: res.status, elapsed, data };
+}
+
+function setToken(t) {
+  token = t;
+  localStorage.setItem('ztoken', t);
+  document.getElementById('tokenBadge').textContent = 'Token: ' + t.substring(0, 16) + '...';
+  document.getElementById('tokenBadge').className = 'token-status token-ok';
+}
+function clearToken() {
+  token = null;
+  localStorage.removeItem('ztoken');
+  document.getElementById('tokenBadge').textContent = 'No Token';
+  document.getElementById('tokenBadge').className = 'token-status token-none';
+}
+
+// Load token from storage
+const saved = localStorage.getItem('ztoken');
+if (saved) setToken(saved);
+
+// Endpoint definitions
+const GROUPS = [
+  { name: 'Auth', endpoints: [
+    { id: 'auth-wechat', method: 'POST', path: '/api/auth/wechat-login', desc: 'WeChat Login',
+      fields: [{ name: 'openid', placeholder: 'mock_openid_001' }],
+      onResponse(r) { if (r.data?.data?.token) setToken(r.data.data.token); } },
+    { id: 'auth-login', method: 'POST', path: '/api/auth/login', desc: 'Staff Login',
+      fields: [{ name: 'username', value: 'staff01' }, { name: 'password', value: '123456' }],
+      onResponse(r) { if (r.data?.data?.token) setToken(r.data.data.token); } },
+  ]},
+  { name: 'User', endpoints: [
+    { id: 'user-me', method: 'GET', path: '/api/user/me', desc: 'My Profile' },
+    { id: 'user-staff', method: 'GET', path: '/api/user/staff', desc: 'Staff List (Admin)' },
+    { id: 'user-addstaff', method: 'POST', path: '/api/user/staff', desc: 'Add Staff',
+      fields: [{ name: 'username' }, { name: 'password' }, { name: 'nickname' }, { name: 'phone' }] },
+  ]},
+  { name: 'Pet', endpoints: [
+    { id: 'pet-add', method: 'POST', path: '/api/pet', desc: 'Add Pet',
+      fields: [{ name: 'name', value: 'Buddy' }, { name: 'breedId', value: '1' }, { name: 'breedName', value: 'Corgi' },
+               { name: 'birthday', value: '2024-03-15' }, { name: 'gender', value: '0' }, { name: 'weight', value: '12' },
+               { name: 'personality', value: 'Friendly' }] },
+    { id: 'pet-my', method: 'GET', path: '/api/pet/my', desc: 'My Pets' },
+    { id: 'pet-detail', method: 'GET', path: '/api/pet/', desc: 'Pet Detail', extraPath: true },
+  ]},
+  { name: 'Service', endpoints: [
+    { id: 'svc-cat', method: 'GET', path: '/api/service/category', desc: 'Categories' },
+    { id: 'svc-cat-all', method: 'GET', path: '/api/service/category/all', desc: 'All Categories' },
+    { id: 'svc-item', method: 'GET', path: '/api/service/item', desc: 'Service Items' },
+    { id: 'svc-item-all', method: 'GET', path: '/api/service/item/all', desc: 'All Items' },
+    { id: 'svc-add', method: 'POST', path: '/api/service/item', desc: 'Add Service',
+      fields: [{ name: 'categoryId', value: '1' }, { name: 'name', value: 'Test Service' },
+               { name: 'price', value: '99' }, { name: 'duration', value: '30' }] },
+    { id: 'svc-toggle', method: 'PUT', path: '/api/service/item/', desc: 'Toggle Service', extraPath: true },
+  ]},
+  { name: 'Package', endpoints: [
+    { id: 'pkg-list', method: 'GET', path: '/api/package', desc: 'Package List' },
+    { id: 'pkg-detail', method: 'GET', path: '/api/package/', desc: 'Package Detail', extraPath: true },
+  ]},
+  { name: 'Order', endpoints: [
+    { id: 'order-create', method: 'POST', path: '/api/order', desc: 'Create Order',
+      fields: [{ name: 'body', type: 'textarea',
+        value: '{"petId":3,"items":[{"serviceId":1,"quantity":1}],"remark":"Test order"}' }] },
+    { id: 'order-my', method: 'GET', path: '/api/order/my', desc: 'My Orders' },
+    { id: 'order-pending', method: 'GET', path: '/api/order/pending', desc: 'Pending Orders' },
+    { id: 'order-pay', method: 'PUT', path: '/api/order/', desc: 'Pay Order', extraPath: true },
+    { id: 'order-accept', method: 'PUT', path: '/api/order/', desc: 'Accept Order', extraPath: true },
+    { id: 'order-complete', method: 'PUT', path: '/api/order/', desc: 'Complete Order', extraPath: true },
+    { id: 'order-cancel', method: 'PUT', path: '/api/order/', desc: 'Cancel Order (add /cancel?reason=xxx)', extraPath: true, suffix: '/cancel' },
+    { id: 'order-reject', method: 'PUT', path: '/api/order/', desc: 'Reject Order', extraPath: true, suffix: '/reject' },
+    { id: 'order-refund', method: 'PUT', path: '/api/order/', desc: 'Refund Order', extraPath: true, suffix: '/refund' },
+    { id: 'order-review', method: 'POST', path: '/api/order/', desc: 'Review', extraPath: true, suffix: '/review?rating=5&review=Great' },
+  ]},
+  { name: 'Payment', endpoints: [
+    { id: 'pay-qr', method: 'POST', path: '/api/payment/qrcode/', desc: 'Generate QR', extraPath: true },
+    { id: 'pay-scan', method: 'POST', path: '/api/payment/scan/', desc: 'Scan Pay', extraPath: true },
+  ]},
+  { name: 'Sign & Rank', endpoints: [
+    { id: 'sign-status', method: 'GET', path: '/api/sign/status', desc: 'Sign Status' },
+    { id: 'sign-do', method: 'POST', path: '/api/sign/do', desc: 'Do Sign' },
+    { id: 'rank-weekly', method: 'GET', path: '/api/rank/pet/weekly', desc: 'Weekly Pet Rank' },
+    { id: 'rank-hot', method: 'GET', path: '/api/rank/service/hot', desc: 'Hot Services' },
+  ]},
+  { name: 'Coupon', endpoints: [
+    { id: 'coupon-seckill', method: 'POST', path: '/api/coupon/seckill/', desc: 'Seckill', extraPath: true },
+  ]},
+  { name: 'Health', endpoints: [
+    { id: 'health-timeline', method: 'GET', path: '/api/health/pet/', desc: 'Health Timeline', extraPath: true, suffix: '/timeline' },
+    { id: 'vaccine-pet', method: 'GET', path: '/api/vaccine/pet/', desc: 'Vaccine Records', extraPath: true },
+    { id: 'vaccine-due', method: 'GET', path: '/api/vaccine/due', desc: 'Upcoming Due' },
+    { id: 'vaccine-add', method: 'POST', path: '/api/vaccine', desc: 'Add Vaccine',
+      fields: [{ name: 'petId', value: '1' }, { name: 'vaccineName', value: 'Rabies' },
+               { name: 'doseNumber', value: '1' }, { name: 'nextDueDate', value: '2027-06-01' }] },
+    { id: 'medical-add', method: 'POST', path: '/api/medical', desc: 'Add Medical',
+      fields: [{ name: 'petId', value: '1' }, { name: 'visitDate', value: '2026-06-01' },
+               { name: 'recordType', value: '2' }, { name: 'diagnosis', value: 'Healthy' }] },
+    { id: 'weight-pet', method: 'GET', path: '/api/weight/pet/', desc: 'Weight History', extraPath: true },
+    { id: 'weight-add', method: 'POST', path: '/api/weight', desc: 'Record Weight',
+      fields: [{ name: 'petId', value: '1' }, { name: 'weight', value: '12.5' }] },
+  ]},
+  { name: 'Dashboard', endpoints: [
+    { id: 'dash-today', method: 'GET', path: '/api/dashboard/today', desc: 'Today Stats' },
+  ]},
+  { name: 'Schedule', endpoints: [
+    { id: 'sched-mine', method: 'GET', path: '/api/schedule/staff', desc: 'My Schedule' },
+    { id: 'avail-my', method: 'GET', path: '/api/availability/my', desc: 'My Availability' },
+    { id: 'avail-toggle', method: 'POST', path: '/api/availability/toggle', desc: 'Toggle Slot',
+      fields: [{ name: 'slotDate', value: '2026-06-02' }, { name: 'slotStart', value: '09:00' },
+               { name: 'slotEnd', value: '12:00' }, { name: 'isOpen', value: '0' }, { name: 'reason', value: 'Break' }] },
+  ]},
+  { name: 'Boarding', endpoints: [
+    { id: 'board-active', method: 'GET', path: '/api/boarding/active', desc: 'Active Boardings' },
+    { id: 'board-checkin', method: 'POST', path: '/api/boarding/checkin', desc: 'Check In',
+      fields: [{ name: 'petId', value: '1' }, { name: 'cageNo', value: 'A01' }] },
+  ]},
+  { name: 'Notification', endpoints: [
+    { id: 'notif-my', method: 'GET', path: '/api/notification/my', desc: 'My Notifications' },
+    { id: 'notif-unread', method: 'GET', path: '/api/notification/unread', desc: 'Unread Count' },
+  ]},
+  { name: 'Breed', endpoints: [
+    { id: 'breed-all', method: 'GET', path: '/api/breed', desc: 'All Breeds' },
+    { id: 'breed-dog', method: 'GET', path: '/api/breed?category=Dog', desc: 'Dog Breeds' },
+    { id: 'breed-cat', method: 'GET', path: '/api/breed?category=Cat', desc: 'Cat Breeds' },
+  ]},
+];
+
+let activeId = GROUPS[0].endpoints[0].id;
+
+function renderSidebar() {
+  const sb = document.getElementById('sidebar');
+  let html = '';
+  GROUPS.forEach(g => {
+    html += '<div class="group">' + g.name + '</div>';
+    g.endpoints.forEach(e => {
+      html += '<div class="item' + (e.id === activeId ? ' active' : '') + '" onclick="selectEndpoint(\'' + e.id + '\')">' +
+        '<span class="method method-' + e.method.toLowerCase() + '" style="margin-right:6px;font-size:10px;">' + e.method + '</span>' +
+        e.desc + '</div>';
+    });
+  });
+  sb.innerHTML = html;
+}
+
+function selectEndpoint(id) {
+  activeId = id;
+  renderSidebar();
+  renderMain();
+}
+
+function findEndpoint(id) {
+  for (const g of GROUPS)
+    for (const e of g.endpoints) if (e.id === id) return e;
+  return null;
+}
+
+function renderMain() {
+  const main = document.getElementById('main');
+  const e = findEndpoint(activeId);
+  if (!e) return;
+
+  let html = '<div class="card"><h3><span class="method method-' + e.method.toLowerCase() + '">' + e.method + '</span> ' + e.desc + '</h3>';
+  html += '<div class="status-line"><span class="info">' + BASE() + e.path + (e.extraPath ? '{id}' + (e.suffix||'') : '') + '</span></div>';
+
+  if (e.extraPath) {
+    html += '<div class="form-row"><label>ID:</label><input id="field__id" placeholder="Order/Pet/etc ID"></div>';
+  }
+  if (e.fields) {
+    e.fields.forEach(f => {
+      const tag = f.type === 'textarea' ? 'textarea' : 'input';
+      html += '<div class="form-row"><label>' + f.name + ':</label><' + tag + ' id="field_' + f.name + '" placeholder="' + (f.placeholder || '') + '" value="' + (f.value || '') + '">' + (tag === 'textarea' ? '</textarea>' : '') + '</div>';
+    });
+  }
+
+  html += '<button class="btn btn-primary" onclick="execute()">Execute</button>';
+  html += '<div id="result" class="result" style="display:none;"></div>';
+  html += '</div>';
+
+  // Token quick-set
+  html += '<div class="card"><h3>Quick Actions</h3>';
+  html += '<div class="quick-tokens">';
+  html += '<button onclick="quickLogin(\'owner\')">Login as Owner</button>';
+  html += '<button onclick="quickLogin(\'staff\')">Login as Staff</button>';
+  html += '<button onclick="quickLogin(\'admin\')">Login as Admin</button>';
+  html += '</div></div>';
+
+  main.innerHTML = html;
+  renderResult(null);
+}
+
+async function quickLogin(type) {
+  let body;
+  if (type === 'owner') body = { openid: 'mock_openid_001' };
+  else if (type === 'staff') body = { username: 'staff01', password: '123456' };
+  else body = { username: 'admin01', password: '123456' };
+
+  const r = await request('POST', type === 'owner' ? '/api/auth/wechat-login' : '/api/auth/login', body);
+  if (r.data?.data?.token) {
+    setToken(r.data.data.token);
+    renderResult(r);
+  } else {
+    renderResult(r);
+  }
+}
+
+async function execute() {
+  const e = findEndpoint(activeId);
+  if (!e) return;
+
+  let path = e.path;
+  if (e.extraPath) {
+    const idEl = document.getElementById('field__id');
+    const idVal = idEl ? idEl.value : '';
+    path += idVal + (e.suffix || '');
+  }
+
+  let body = null;
+  if (e.method !== 'GET' && e.fields) {
+    body = {};
+    e.fields.forEach(f => {
+      const el = document.getElementById('field_' + f.name);
+      if (el) {
+        const val = el.value;
+        if (val) {
+          try { body[f.name] = JSON.parse(val); } catch { body[f.name] = val; }
+        }
+      }
+    });
+  }
+  if (e.extraPath && e.method !== 'GET' && !body) body = {};
+
+  const r = await request(e.method, path, body);
+  if (e.onResponse) e.onResponse(r);
+  renderResult(r);
+}
+
+function renderResult(r) {
+  const div = document.getElementById('result');
+  if (!div) return;
+  if (!r) { div.style.display = 'none'; return; }
+  div.style.display = 'block';
+  const cls = r.status >= 400 ? 'result error' : 'result';
+  div.className = cls;
+  div.textContent = 'Status: ' + r.status + ' (' + r.elapsed + 'ms)\n\n' + JSON.stringify(r.data, null, 2);
+}
+
+renderSidebar();
+renderMain();
+</script>
+</body>
+</html>

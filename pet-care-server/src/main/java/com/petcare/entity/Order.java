@@ -11,19 +11,30 @@ public class Order {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String orderNo;
+    private Integer orderType;
     private Long userId;
     private Long petId;
-    private Long serviceId;
     private Long staffId;
     private Long storeId;
-    private BigDecimal amount;
-    /** 0=待支付 1=已支付 2=服务中 3=已完成 4=已取消 */
+    private BigDecimal totalAmount;
     private Integer status;
     private LocalDateTime appointmentTime;
+    private LocalDateTime actualStartTime;
+    private LocalDateTime actualEndTime;
     private LocalDateTime payTime;
     private LocalDateTime completeTime;
+    private LocalDateTime refundTime;
+    private String refundReason;
+    private BigDecimal refundAmount;
     private Integer rating;
     private String review;
+    private String cancelReason;
+    private String rejectionReason;
+    private String remark;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
+    private Long createUser;
+    private Long updateUser;
 }

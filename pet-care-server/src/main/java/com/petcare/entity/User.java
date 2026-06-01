@@ -2,6 +2,7 @@ package com.petcare.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,13 +14,19 @@ public class User {
     private String username;
     private String password;
     private String nickname;
+    private String realName;
     private String phone;
+    private Integer gender;
+    private LocalDate birthday;
     private String avatar;
-    /** 0=宠物主 1=店员 2=店长 */
     private Integer role;
     private Long storeId;
-    /** 1=正常 0=禁用 */
     private Integer status;
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
+    private Long createUser;
+    private Long updateUser;
 }

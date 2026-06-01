@@ -1,11 +1,26 @@
+
 <view class="container">
-  <view class="card" style="text-align:center;">
-    <text style="font-size:20px;">{{user ? user.nickname : '未登录'}}</text>
-    <view wx:if="{{!user}}" class="btn-primary" bindtap="goLogin" style="margin-top:12px;">登录</view>
+  <view wx:if="{{!user}}" class="card" style="text-align:center;padding:40px;">
+    <text style="font-size:18px;">Not logged in</text>
+    <view style="margin-top:16px;">
+      <view class="btn btn-primary" bindtap="goLogin" style="margin-bottom:8px;">Pet Owner Login</view>
+      <view class="btn" style="background:#1565C0;color:#fff;" bindtap="staffLogin">Staff Login</view>
+    </view>
   </view>
-  <view class="card" wx:if="{{user}}">
-    <view bindtap="goPet" style="padding:12px 0;border-bottom:1px solid #eee;">我的宠物 ></view>
-    <view bindtap="goSign" style="padding:12px 0;border-bottom:1px solid #eee;">每日签到 ></view>
-    <view style="padding:12px 0;" bindtap="logout">退出登录</view>
+
+  <view wx:if="{{user}}">
+    <view class="card" style="text-align:center;padding:20px;">
+      <text style="font-size:22px;font-weight:600;">{{user.nickname}}</text>
+      <view style="margin-top:4px;"><text class="tag tag-green">{{roleText[user.role]}}</text></view>
+      <view class="text-muted" style="margin-top:4px;">{{user.phone || 'No phone'}}</view>
+    </view>
+
+    <view class="card">
+      <view style="padding:12px 0;border-bottom:1px solid #f0f0f0;" bindtap="{{() => wx.navigateTo({url:'/pages/pet/pet'})}}">My Pets ></view>
+      <view style="padding:12px 0;border-bottom:1px solid #f0f0f0;" bindtap="{{() => wx.switchTab({url:'/pages/order/order'})}}">My Orders ></view>
+      <view style="padding:12px 0;border-bottom:1px solid #f0f0f0;" bindtap="{{() => wx.navigateTo({url:'/pages/sign/sign'})}}">Daily Sign ></view>
+    </view>
+
+    <view class="btn btn-danger" bindtap="logout" style="width:100%;margin-top:16px;">Logout</view>
   </view>
 </view>
