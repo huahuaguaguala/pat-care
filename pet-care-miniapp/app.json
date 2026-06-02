@@ -1,11 +1,13 @@
 {
   "pages": [
+    "pages/login/login",
     "pages/index/index",
     "pages/service/service",
     "pages/order/order",
     "pages/pet/pet",
     "pages/sign/sign",
-    "pages/mine/mine"
+    "pages/mine/mine",
+    "pages/staff/workbench"
   ],
   "window": {
     "navigationBarBackgroundColor": "#4CAF50",

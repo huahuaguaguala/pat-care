@@ -20,7 +20,7 @@
   <view wx:if="{{selectedItems.length > 0}}" class="btn btn-primary" bindtap="book" style="width:100%;margin-top:12px;">Book {{selectedItems.length}} service(s)</view>
 
   <view wx:if="{{showBooking}}" class="card" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#fff;z-index:100;overflow:scroll;">
-    <view class="card-title">Confirm Booking <text class="btn btn-sm" bindtap="{{() => {showBooking=false}}}" style="color:#999;">Close</text></view>
+    <view class="card-title">Confirm Booking <text class="btn btn-sm" bindtap="hideBooking" style="color:#999;">Close</text></view>
     <form bindsubmit="submitOrder">
       <view style="margin-bottom:10px;"><text>Pet</text>
         <picker name="petId" mode="selector" range="{{myPets}}" range-key="name">

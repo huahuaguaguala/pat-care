@@ -1,9 +1,9 @@
 
 <view class="container">
   <view class="card" style="display:flex;gap:8px;flex-wrap:wrap;">
-    <text class="tag {{filterStatus === null ? 'tag-green' : 'tag-blue'}}" bindtap="{{() => {filterStatus=null;loadOrders()}}}">All</text>
+    <text class="tag {{filterStatus === null ? 'tag-green' : 'tag-blue'}}" bindtap="clearFilter">全部</text>
     <text wx:for="{{statusMap}}" wx:key="*this" class="tag {{filterStatus === index ? 'tag-green' : 'tag-blue'}}"
-      bindtap="{{() => {filterStatus=index;loadOrders()}}}">{{item}}</text>
+      bindtap="setFilter" data-index="{{index}}">{{item}}</text>
   </view>
 
   <view wx:for="{{orders}}" wx:key="id" wx:if="{{!filterStatus || item.order.status === filterStatus}}" class="card">

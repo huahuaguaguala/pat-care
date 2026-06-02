@@ -1,1 +1,39 @@
-<view class="container"><text>{{page}} 页面</text></view>
+<view class="container" style="padding-top:60px;">
+  <!-- Logo -->
+  <view style="text-align:center;margin-bottom:40px;">
+    <view style="width:80px;height:80px;background:#4CAF50;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;">
+      <text style="font-size:36px;color:#fff;">爪</text>
+    </view>
+    <view style="font-size:22px;font-weight:700;color:#333;margin-top:16px;">爪爪护理</view>
+    <view style="color:#999;font-size:13px;margin-top:4px;">宠物护理店 · 在线服务</view>
+  </view>
+
+  <!-- Tab Switch -->
+  <view class="card" style="padding:4px;display:flex;margin-bottom:20px;">
+    <view class="tab-item {{mode==='owner'?'tab-active':''}}" bindtap="switchMode" data-mode="owner">宠物主登录</view>
+    <view class="tab-item {{mode==='staff'?'tab-active':''}}" bindtap="switchMode" data-mode="staff">店员/店长登录</view>
+  </view>
+
+  <!-- Owner Login -->
+  <view wx:if="{{mode==='owner'}}" class="card" style="padding:20px;">
+    <view style="font-size:15px;color:#666;margin-bottom:16px;">微信授权登录（测试模式）</view>
+    <input placeholder="OpenID（默认 mock_openid_001）" value="{{openid}}" bindinput="onOpenidInput" style="border:1px solid #e0e0e0;border-radius:8px;padding:14px;font-size:15px;margin-bottom:20px;"/>
+    <button style="background:#4CAF50;color:#fff;border:none;border-radius:8px;font-size:16px;padding:14px;" bindtap="doOwnerLogin">登 录</button>
+    <view style="text-align:center;color:#999;font-size:12px;margin-top:12px;">测试OpenID: mock_openid_001</view>
+  </view>
+
+  <!-- Staff Login -->
+  <view wx:if="{{mode==='staff'}}" class="card" style="padding:20px;">
+    <view style="font-size:15px;color:#666;margin-bottom:16px;">店员 / 店长账号登录</view>
+    <view style="margin-bottom:16px;">
+      <view style="font-size:13px;color:#999;margin-bottom:6px;">账号</view>
+      <input placeholder="staff01 / admin01" value="{{username}}" bindinput="onUsernameInput" style="border:1px solid #e0e0e0;border-radius:8px;padding:14px;font-size:15px;"/>
+    </view>
+    <view style="margin-bottom:20px;">
+      <view style="font-size:13px;color:#999;margin-bottom:6px;">密码</view>
+      <input placeholder="123456" password="true" value="{{password}}" bindinput="onPasswordInput" style="border:1px solid #e0e0e0;border-radius:8px;padding:14px;font-size:15px;"/>
+    </view>
+    <button style="background:#1565C0;color:#fff;border:none;border-radius:8px;font-size:16px;padding:14px;" bindtap="doStaffLogin">登 录</button>
+    <view style="text-align:center;color:#999;font-size:12px;margin-top:8px;">店员: staff01 / 店长: admin01 · 密码: 123456</view>
+  </view>
+</view>

@@ -1,0 +1,70 @@
+<view class="container">
+  <!-- Header -->
+  <view class="card" style="background: linear-gradient(135deg, #1565C0, #1E88E5); color: #fff; padding: 16px;">
+    <view style="display: flex; justify-content: space-between; align-items: center;">
+      <text style="font-size: 20px; font-weight: 700;">店员工作台</text>
+      <text class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: #fff;" bindtap="logout">退出</text>
+    </view>
+    <view style="margin-top: 12px; display: flex; gap: 16px;">
+      <text>待接单: {{pendingOrders.length}} 单</text>
+      <text>服务中: {{myActiveCount}} 单</text>
+      <text wx:if="{{unreadCount > 0}}" style="background: #f44336; padding: 2px 8px; border-radius: 10px; font-size: 12px;">{{unreadCount}} 条消息</text>
+    </view>
+  </view>
+
+  <!-- Tab switch -->
+  <view style="display: flex; margin-top: 12px; border-radius: 8px; overflow: hidden; background: #fff;">
+    <view class="tab-item {{activeTab==='pending' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="pending">待接单</view>
+    <view class="tab-item {{activeTab==='active' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="active">服务中</view>
+    <view class="tab-item {{activeTab==='quick' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="quick">快捷操作</view>
+  </view>
+
+  <!-- Pending Orders -->
+  <view wx:if="{{activeTab === 'pending'}}">
+    <view wx:for="{{pendingOrders}}" wx:key="id" class="card" style="margin-top: 12px;">
+      <view style="font-size: 12px; color: #999;">#{{item.orderNo}}</view>
+      <view style="font-weight: 600; margin: 4px 0;">金额: ${{item.totalAmount}}</view>
+      <view wx:if="{{item.appointmentTime}}" class="text-muted">预约: {{item.appointmentTime}}</view>
+      <view wx:if="{{item.remark}}" class="text-muted">备注: {{item.remark}}</view>
+      <view style="margin-top: 12px; display: flex; gap: 8px;">
+        <text class="btn btn-sm" style="flex:1; background: #4CAF50; color: #fff; text-align: center; padding: 8px;" bindtap="acceptOrder" data-id="{{item.id}}">接单</text>
+        <text class="btn btn-sm" style="flex:1; background: #f44336; color: #fff; text-align: center; padding: 8px;" bindtap="rejectOrder" data-id="{{item.id}}">拒单</text>
+      </view>
+    </view>
+    <view wx:if="{{pendingOrders.length === 0}}" class="empty">暂无待接订单</view>
+  </view>
+
+  <!-- My Active Orders -->
+  <view wx:if="{{activeTab === 'active'}}">
+    <view wx:for="{{myOrders}}" wx:key="id" wx:if="{{item.order.status === 2}}" class="card" style="margin-top: 12px;">
+      <view style="font-size: 12px; color: #999;">#{{item.order.orderNo}}</view>
+      <view style="font-weight: 600; margin: 4px 0;">金额: ${{item.order.totalAmount}}</view>
+      <view wx:for="{{item.details}}" wx:key="id" style="font-size: 12px; color: #666;">{{it.serviceName}} x{{it.quantity}}</view>
+      <view style="margin-top: 12px;">
+        <text class="btn btn-sm btn-primary" style="width: 100%; text-align: center; padding: 8px; display: block;" bindtap="completeOrder" data-id="{{item.order.id}}">完成服务</text>
+      </view>
+    </view>
+    <view wx:if="{{myActiveCount === 0}}" class="empty">暂无服务中的订单</view>
+  </view>
+
+  <!-- Quick Actions -->
+  <view wx:if="{{activeTab === 'quick'}}">
+    <view class="card" style="margin-top: 12px;">
+      <view style="font-weight: 600; margin-bottom: 8px;">常用操作</view>
+      <view class="btn" style="background: #E3F2FD; color: #1565C0; padding: 12px; border-radius: 8px; margin-bottom: 8px; text-align: center;" bindtap="quickCheckin">寄养入住登记</view>
+      <view class="btn" style="background: #E8F5E9; color: #2E7D32; padding: 12px; border-radius: 8px; margin-bottom: 8px; text-align: center;" bindtap="quickWeight">记录体重</view>
+      <view class="btn" style="background: #FFF3E0; color: #E65100; padding: 12px; border-radius: 8px; margin-bottom: 8px; text-align: center;" bindtap="quickVaccine">录入疫苗</view>
+    </view>
+
+    <!-- Today Schedule -->
+    <view class="card" style="margin-top: 12px;">
+      <view style="font-weight: 600; margin-bottom: 8px;">今日排班</view>
+      <view wx:for="{{schedule}}" wx:key="id" style="padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 13px;">
+        <text style="color: #1565C0;">{{item.workDate}}</text>
+        <text style="margin-left: 12px;">{{item.startTime}} - {{item.endTime}}</text>
+        <text class="text-muted" style="margin-left: 8px;">容量: {{item.maxSlots}}</text>
+      </view>
+      <view wx:if="{{schedule.length === 0}}" class="empty">暂无排班信息</view>
+    </view>
+  </view>
+</view>

@@ -1,37 +1,31 @@
-
-const { get, post } = require('../../utils/request');
+var http = require('../../utils/request');
 Page({
-  data: { categories: [], items: [], selectedCategory: null, selectedItems: [],
-    petId: null, myPets: [], appointmentTime: '', remark: '', showBooking: false },
-  onShow() {
-    get('/api/service/category').then(list => {
-      this.setData({ categories: list || [] });
-      if (list && list.length > 0) this.loadItems(list[0].id);
-    });
-    get('/api/pet/my').then(pets => this.setData({ myPets: pets || [] })).catch(() => {});
+  data: { categories: [], items: [], selectedCategory: null, selectedItems: [], myPets: [], showBooking: false },
+  onShow: function() {
+    var self = this;
+    http.get('/api/service/category').then(function(list) { var cats = list || []; self.setData({ categories: cats }); if (cats.length>0) self.loadItems(cats[0].id); });
+    http.get('/api/pet/my').then(function(pets) { self.setData({ myPets: pets || [] }); }).catch(function(){});
   },
-  loadItems(catId) {
-    this.setData({ selectedCategory: catId });
-    get('/api/service/item?categoryId=' + catId).then(list => this.setData({ items: list || [] }));
+  loadItems: function(catId) {
+    var self = this; this.setData({ selectedCategory: catId });
+    http.get('/api/service/item?categoryId=' + catId).then(function(list) { self.setData({ items: list || [] }); });
   },
-  toggleItem(e) {
-    const id = e.currentTarget.dataset.id;
-    let sel = this.data.selectedItems;
-    const idx = sel.indexOf(id);
+  toggleItem: function(e) {
+    var id = e.currentTarget.dataset.id, sel = this.data.selectedItems.slice(), idx = sel.indexOf(id);
     if (idx > -1) sel.splice(idx, 1); else sel.push(id);
     this.setData({ selectedItems: sel });
   },
-  book() {
+  hideBooking: function() { this.setData({ showBooking: false }); },
+  book: function() {
     if (this.data.selectedItems.length === 0) { wx.showToast({ title: 'Select services', icon: 'none' }); return; }
     this.setData({ showBooking: true });
   },
-  submitOrder(e) {
-    const d = e.detail.value;
-    const items = this.data.selectedItems.map(sid => ({ serviceId: sid, quantity: 1 }));
-    const body = { petId: parseInt(d.petId), items, appointmentTime: d.appointmentTime || null, remark: d.remark };
-    post('/api/order', body).then(order => {
-      wx.showToast({ title: 'Order created!', icon: 'success' });
-      this.setData({ showBooking: false, selectedItems: [] });
-    }).catch(err => wx.showToast({ title: (err && err.message) || 'Failed', icon: 'none' }));
+  submitOrder: function(e) {
+    var d = e.detail.value, self = this;
+    var items = this.data.selectedItems.map(function(sid) { return { serviceId: sid, quantity: 1 }; });
+    var body = { petId: parseInt(d.petId), items: items, appointmentTime: d.appointmentTime || null, remark: d.remark };
+    http.post('/api/order', body).then(function() {
+      wx.showToast({ title: 'Order created', icon: 'success' }); self.setData({ showBooking: false, selectedItems: [] });
+    }).catch(function() { wx.showToast({ title: 'Failed', icon: 'none' }); });
   }
 });

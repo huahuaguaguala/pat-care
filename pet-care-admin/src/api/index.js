@@ -1,4 +1,3 @@
-
 import axios from 'axios';
 const api = axios.create({ baseURL: '/api' });
 api.interceptors.request.use(config => {
@@ -7,20 +6,15 @@ api.interceptors.request.use(config => {
   return config;
 });
 api.interceptors.response.use(
-  res => res.data?.data !== undefined ? res.data.data : res.data,
+  res => {
+    const d = res.data;
+    if (d && d.code && d.code !== 200) return Promise.reject(d);
+    return d?.data !== undefined ? d.data : d;
+  },
   err => {
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
-      if (confirm('Login required. Staff login?')) {
-        const u = prompt('Username:','staff01');
-        const p = prompt('Password:','123456');
-        if (u && p) {
-          api.post('/auth/login', { username: u, password: p }).then(r => {
-            localStorage.setItem('token', r.token);
-            window.location.reload();
-          });
-        }
-      }
+      window.location.href = '/login';
     }
     return Promise.reject(err);
   }
